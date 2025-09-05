@@ -1,5 +1,5 @@
 function Option({ option, dispatch, userAnswer, index, correctOption }) {
-	const hasAnswered = !!userAnswer;
+	const hasAnswered = !(userAnswer === null);
 	return (
 		<button
 			type={"button"}

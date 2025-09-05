@@ -5,6 +5,7 @@ import Header from "./components/Header.jsx";
 import Loader from "./components/Loader.jsx";
 import Main from "./components/Main.jsx";
 import NextBtn from "./components/NextBtn.jsx";
+import Progress from "./components/Progress.jsx";
 import Question from "./components/Question.jsx";
 import StartScreen from "./components/StartScreen.jsx";
 
@@ -45,12 +46,14 @@ function reducer(state, action) {
 	}
 }
 function App() {
-	const [{ questions, status, index, userAnswer }, dispatch] = useReducer(
-		reducer,
-		initialState,
-	);
+	const [{ questions, status, index, userAnswer, points }, dispatch] =
+		useReducer(reducer, initialState);
 	const { data, loading, error } = useFetch("http://localhost:8000/questions");
 	const questionsCount = questions.length;
+	const maxPoints = questions.reduce(
+		(acc, question) => acc + question.points,
+		0,
+	);
 
 	useEffect(() => {
 		if (loading) {
@@ -74,6 +77,13 @@ function App() {
 				)}
 				{status === "Active" && (
 					<>
+						<Progress
+							userAnswer={userAnswer}
+							index={index}
+							questionsCount={questionsCount}
+							points={points}
+							maxPoints={maxPoints}
+						/>
 						<Question
 							userAnswer={userAnswer}
 							dispatch={dispatch}

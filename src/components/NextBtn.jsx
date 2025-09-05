@@ -1,5 +1,5 @@
 function NextBtn({ dispatch, userAnswer }) {
-	const hasAnswered = !!userAnswer;
+	const hasAnswered = !(userAnswer === null);
 	if (!hasAnswered) return;
 
 	return (

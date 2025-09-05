@@ -2,7 +2,6 @@ import Option from "./Option.jsx";
 
 function Question({ questions, index, dispatch, userAnswer }) {
 	const question = questions.at(index);
-	console.log(question);
 	return (
 		<div>
 			<h4>{question.question}</h4>
