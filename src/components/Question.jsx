@@ -1,13 +1,21 @@
 import Option from "./Option.jsx";
 
-function Question({ questions, index }) {
+function Question({ questions, index, dispatch, userAnswer }) {
 	const question = questions.at(index);
+	console.log(question);
 	return (
 		<div>
 			<h4>{question.question}</h4>
 			<div className="options">
-				{question.options.map((option) => (
-					<Option key={option} option={option} />
+				{question.options.map((option, i) => (
+					<Option
+						userAnswer={userAnswer}
+						dispatch={dispatch}
+						key={option}
+						option={option}
+						correctOption={question.correctOption}
+						index={i}
+					/>
 				))}
 			</div>
 		</div>

@@ -4,6 +4,7 @@ import ErrorC from "./components/ErrorC.jsx";
 import Header from "./components/Header.jsx";
 import Loader from "./components/Loader.jsx";
 import Main from "./components/Main.jsx";
+import NextBtn from "./components/NextBtn.jsx";
 import Question from "./components/Question.jsx";
 import StartScreen from "./components/StartScreen.jsx";
 
@@ -13,6 +14,8 @@ const initialState = {
 	// Loading, Error, Ready, Active, Finished
 	status: "Loading",
 	index: 0,
+	userAnswer: null,
+	points: 0,
 };
 
 function reducer(state, action) {
@@ -25,10 +28,24 @@ function reducer(state, action) {
 			return { ...state, status: "Error" };
 		case "start":
 			return { ...state, status: "Active" };
+		case "newAnswer": {
+			const question = state.questions.at(state.index);
+
+			return {
+				...state,
+				userAnswer: action.payload,
+				points:
+					action.payload === question.correctOption
+						? state.points + question.points
+						: state.points,
+			};
+		}
+		case "nextQuestion":
+			return { ...state, index: state.index + 1, userAnswer: null };
 	}
 }
 function App() {
-	const [{ questions, status, index }, dispatch] = useReducer(
+	const [{ questions, status, index, userAnswer }, dispatch] = useReducer(
 		reducer,
 		initialState,
 	);
@@ -56,7 +73,15 @@ function App() {
 					<StartScreen questionsCount={questionsCount} dispatch={dispatch} />
 				)}
 				{status === "Active" && (
-					<Question index={index} questions={questions} />
+					<>
+						<Question
+							userAnswer={userAnswer}
+							dispatch={dispatch}
+							index={index}
+							questions={questions}
+						/>
+						<NextBtn userAnswer={userAnswer} dispatch={dispatch} />
+					</>
 				)}
 			</Main>
 		</div>
