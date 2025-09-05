@@ -1,14 +1,18 @@
-import "./App.css";
 import { useEffect, useReducer } from "react";
 import { useFetch } from "./assets/hooks/useFetch.jsx";
+import ErrorC from "./components/ErrorC.jsx";
 import Header from "./components/Header.jsx";
+import Loader from "./components/Loader.jsx";
 import Main from "./components/Main.jsx";
+import Question from "./components/Question.jsx";
+import StartScreen from "./components/StartScreen.jsx";
 
 const initialState = {
 	questions: [],
 
 	// Loading, Error, Ready, Active, Finished
 	status: "Loading",
+	index: 0,
 };
 
 function reducer(state, action) {
@@ -16,31 +20,44 @@ function reducer(state, action) {
 		case "dataReceived":
 			return { ...state, questions: action.payload, status: "Ready" };
 		case "isLoading":
-			return { ...state, questions: [], status: "Loading" };
+			return { ...state, status: "Loading" };
 		case "error":
-			return { ...state, questions: [], status: "Error" };
+			return { ...state, status: "Error" };
+		case "start":
+			return { ...state, status: "Active" };
 	}
 }
 function App() {
-	const [state, dispatch] = useReducer(reducer, initialState);
+	const [{ questions, status, index }, dispatch] = useReducer(
+		reducer,
+		initialState,
+	);
 	const { data, loading, error } = useFetch("http://localhost:8000/questions");
+	const questionsCount = questions.length;
 
 	useEffect(() => {
 		if (loading) {
 			dispatch({ type: "isLoading" });
 		} else if (error) {
-			dispatch({ type: "error", payload: error });
+			dispatch({ type: "error", payload: "" });
 		} else if (data) {
 			dispatch({ type: "dataReceived", payload: data });
 		}
 	}, [data, loading, error]);
 
+	console.log(status);
 	return (
 		<div className={"app"}>
 			<Header />
 			<Main>
-				<p>1/15</p>
-				<p></p>
+				{status === "Loading" && <Loader />}
+				{status === "Error" && <ErrorC />}
+				{status === "Ready" && (
+					<StartScreen questionsCount={questionsCount} dispatch={dispatch} />
+				)}
+				{status === "Active" && (
+					<Question index={index} questions={questions} />
+				)}
 			</Main>
 		</div>
 	);

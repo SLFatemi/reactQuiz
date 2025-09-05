@@ -6,9 +6,6 @@ function useFetch(url) {
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		const controller = new AbortController();
-		const signal = controller.signal;
-
 		async function fetchData() {
 			try {
 				const res = await fetch(url);
@@ -24,7 +21,6 @@ function useFetch(url) {
 			return null;
 		}
 		fetchData();
-		return () => controller.abort();
 	}, [url]);
 	return { data, loading, error };
 }
