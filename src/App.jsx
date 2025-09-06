@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from "react";
 import { useFetch } from "./assets/hooks/useFetch.jsx";
 import ErrorC from "./components/ErrorC.jsx";
+import FinishScreen from "./components/FinishScreen.jsx";
 import Header from "./components/Header.jsx";
 import Loader from "./components/Loader.jsx";
 import Main from "./components/Main.jsx";
@@ -14,9 +15,10 @@ const initialState = {
 
 	// Loading, Error, Ready, Active, Finished
 	status: "Loading",
-	index: 0,
+	index: 13,
 	userAnswer: null,
 	points: 0,
+	highscore: -1,
 };
 
 function reducer(state, action) {
@@ -42,12 +44,29 @@ function reducer(state, action) {
 			};
 		}
 		case "nextQuestion":
+			if (state.index >= state.questions.length - 1)
+				// Finished State :P
+				return {
+					...state,
+					status: "Finished",
+					highscore: Math.max(state.highscore, state.points),
+				};
 			return { ...state, index: state.index + 1, userAnswer: null };
+		case "restart":
+			return {
+				...state,
+				index: 0,
+				points: 0,
+				status: "Ready",
+				userAnswer: null,
+			};
 	}
 }
 function App() {
-	const [{ questions, status, index, userAnswer, points }, dispatch] =
-		useReducer(reducer, initialState);
+	const [
+		{ questions, status, index, userAnswer, points, highscore },
+		dispatch,
+	] = useReducer(reducer, initialState);
 	const { data, loading, error } = useFetch("http://localhost:8000/questions");
 	const questionsCount = questions.length;
 	const maxPoints = questions.reduce(
@@ -92,6 +111,14 @@ function App() {
 						/>
 						<NextBtn userAnswer={userAnswer} dispatch={dispatch} />
 					</>
+				)}
+				{status === "Finished" && (
+					<FinishScreen
+						highscore={highscore}
+						points={points}
+						maxPoints={maxPoints}
+						dispatch={dispatch}
+					/>
 				)}
 			</Main>
 		</div>
