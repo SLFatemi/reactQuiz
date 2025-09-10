@@ -2,6 +2,7 @@ import { useEffect, useReducer } from "react";
 import { useFetch } from "./assets/hooks/useFetch.jsx";
 import ErrorC from "./components/ErrorC.jsx";
 import FinishScreen from "./components/FinishScreen.jsx";
+import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import Loader from "./components/Loader.jsx";
 import Main from "./components/Main.jsx";
@@ -9,16 +10,18 @@ import NextBtn from "./components/NextBtn.jsx";
 import Progress from "./components/Progress.jsx";
 import Question from "./components/Question.jsx";
 import StartScreen from "./components/StartScreen.jsx";
+import Timer from "./components/Timer.jsx";
 
 const initialState = {
 	questions: [],
 
 	// Loading, Error, Ready, Active, Finished
 	status: "Loading",
-	index: 13,
+	index: 0,
 	userAnswer: null,
 	points: 0,
-	highscore: -1,
+	highscore: 0,
+	secondsRemaining: null,
 };
 
 function reducer(state, action) {
@@ -30,7 +33,11 @@ function reducer(state, action) {
 		case "error":
 			return { ...state, status: "Error" };
 		case "start":
-			return { ...state, status: "Active" };
+			return {
+				...state,
+				status: "Active",
+				secondsRemaining: state.questions.length * 20,
+			};
 		case "newAnswer": {
 			const question = state.questions.at(state.index);
 
@@ -50,7 +57,9 @@ function reducer(state, action) {
 					...state,
 					status: "Finished",
 					highscore: Math.max(state.highscore, state.points),
+					secondsRemaining: initialState.secondsRemaining,
 				};
+
 			return { ...state, index: state.index + 1, userAnswer: null };
 		case "restart":
 			return {
@@ -60,11 +69,28 @@ function reducer(state, action) {
 				status: "Ready",
 				userAnswer: null,
 			};
+		case "tick":
+			if (state.secondsRemaining <= 0)
+				return {
+					...state,
+					status: "Finished",
+					highscore: Math.max(state.highscore, state.points),
+					secondsRemaining: initialState.secondsRemaining,
+				};
+			return { ...state, secondsRemaining: state.secondsRemaining - 1 };
 	}
 }
 function App() {
 	const [
-		{ questions, status, index, userAnswer, points, highscore },
+		{
+			questions,
+			status,
+			index,
+			userAnswer,
+			points,
+			highscore,
+			secondsRemaining,
+		},
 		dispatch,
 	] = useReducer(reducer, initialState);
 	const { data, loading, error } = useFetch("http://localhost:8000/questions");
@@ -109,7 +135,10 @@ function App() {
 							index={index}
 							questions={questions}
 						/>
-						<NextBtn userAnswer={userAnswer} dispatch={dispatch} />
+						<Footer>
+							<Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
+							<NextBtn userAnswer={userAnswer} dispatch={dispatch} />
+						</Footer>
 					</>
 				)}
 				{status === "Finished" && (
