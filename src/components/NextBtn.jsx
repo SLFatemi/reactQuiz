@@ -1,4 +1,8 @@
-function NextBtn({ dispatch, userAnswer }) {
+import { useQuiz } from "../context/QuizProvider.jsx";
+
+function NextBtn() {
+	const { dispatch, userAnswer } = useQuiz();
+
 	const hasAnswered = !(userAnswer === null);
 	if (!hasAnswered) return;
 

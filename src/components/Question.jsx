@@ -1,6 +1,8 @@
+import { useQuiz } from "../context/QuizProvider.jsx";
 import Option from "./Option.jsx";
 
-function Question({ questions, index, dispatch, userAnswer }) {
+function Question() {
+	const { questions, index, dispatch, userAnswer } = useQuiz();
 	const question = questions.at(index);
 	return (
 		<div>
